@@ -18,6 +18,10 @@ type Program public () =
     [<Literal>]
     let BackgroundColor:uint32 = 0xFF6495EDu // Cornflower Blue
 
+    let loadMeshFromFile:bool = true
+
+    let MeshFile:string = "cube.x"
+
     // Fields
     let dispatchManager:DispatchManager = new DispatchManager()
     let dispatcher:Dispatcher = dispatchManager.DispatcherForCurrentThread :?> Dispatcher
@@ -45,10 +49,8 @@ type Program public () =
     let mutable isTriangles:bool = false
     let mutable isRotating:bool = true
     let mutable isCulling:bool = true
-
-    let cube:Polygon =
-        let mesh:XFileParser = new XFileParser("cube.x")
-
+    
+    let cube:Lazy<Polygon> = lazy(
         let primitive:Polygon = new Polygon(8, 6, 6, 6)
 
         primitive.Vertices.Add(new Vector3(-1.000000f, -1.000000f, -1.000000f))
@@ -59,6 +61,8 @@ type Program public () =
         primitive.Vertices.Add(new Vector3(-1.000000f,  1.000000f,  1.000000f))
         primitive.Vertices.Add(new Vector3( 1.000000f,  1.000000f,  1.000000f))
         primitive.Vertices.Add(new Vector3( 1.000000f, -1.000000f,  1.000000f))
+
+        //primitive.Vertices.AddRange(xfile.mesh.getvert)
 
         primitive.VerticeGroups.Add([| 0; 1; 5; 4 |])
         primitive.VerticeGroups.Add([| 1; 2; 6; 5 |])
@@ -82,17 +86,31 @@ type Program public () =
         primitive.NormalGroups.Add([| 5; 5; 5; 5 |])
 
         primitive
+    )
 
-    let mutable activePrimitive:Polygon = cube
+    //let loadedPolygon:Lazy<Polygon> = lazy(
+    //    let       
+    //)
+    
+    
+
+    let mutable activePrimitive:Polygon = cube.Value
 
     // Methods
     member public this.Run() : unit =
+        
+        //if loadMeshFromFile then
+        //    let loadedMesh:XFileParser = new XFileParser(MeshFile)
+            //activePrimitive = loadedMesh.ReturnPrimitive()
+
         Console.CursorTop <- ConsoleHeaderLineCount
+        Console.WriteLine("test")
+        let loadedMesh:XFileParser = new XFileParser("cube.x")
 
         let mutable exitRequested = false
         dispatcher.ExitRequested.Add(fun unit -> exitRequested <- true)
 
-        window.Show()
+        //window.Show()
         window.Paint.Add(fun eventArgs -> 
             eventArgs.DrawingContext.DrawBitmap(buffers.[displayBufferIndex]))
 
@@ -148,7 +166,7 @@ type Program public () =
             let consoleTop:int32 = Console.CursorTop
             //for showing what the model that you are viewing is. A better way will be to put it down
             //there and have it as a variable in this file
-            Console.CursorTop <- 0 + 1 
+            Console.CursorTop <- 0
 
             minFps <- min fps minFps
             maxFps <- max fps maxFps
