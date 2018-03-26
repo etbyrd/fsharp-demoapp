@@ -38,7 +38,7 @@ type Program public () =
     let mutable lastHeaderUpdate:Timestamp = Unchecked.defaultof<Timestamp>
 
     let mutable rotation:Vector3 = new Vector3(45.0f, 45.0f, 45.0f)
-    let mutable rotationSpeed:Vector3 = new Vector3(15.0000f, 15.0000f, 15.0000f)
+    let mutable rotationSpeed:Vector3 = new Vector3(15.0000f, 15.0000f, 0.0000f)
     let mutable scale:Vector3 = new Vector3(100.0f, 100.0f, 1.0f)
     let mutable translation:Vector3 = new Vector3(0.0f, 0.0f, 0.0f)
 
@@ -47,6 +47,8 @@ type Program public () =
     let mutable isCulling:bool = true
 
     let cube:Polygon =
+        let mesh:XFileParser = new XFileParser("cube.x")
+
         let primitive:Polygon = new Polygon(8, 6, 6, 6)
 
         primitive.Vertices.Add(new Vector3(-1.000000f, -1.000000f, -1.000000f))
@@ -144,16 +146,18 @@ type Program public () =
             Console.CursorLeft <- 0
 
             let consoleTop:int32 = Console.CursorTop
-            Console.CursorTop <- 0
+            //for showing what the model that you are viewing is. A better way will be to put it down
+            //there and have it as a variable in this file
+            Console.CursorTop <- 0 + 1 
 
             minFps <- min fps minFps
             maxFps <- max fps maxFps
 
             Console.WriteLine("========================================")
-            Console.WriteLine("{0} FPS", fps)
-            Console.WriteLine("{0:F3} Min FPS", minFps)
-            Console.WriteLine("{0:F3} Avg FPS", (float32 totalFrames / (float32 totalUptime.Ticks / float32 TimeSpan.TicksPerSecond)))
-            Console.WriteLine("{0:F3} Max FPS", maxFps)
+            Console.WriteLine("{0} FPS                   ", fps)
+            Console.WriteLine("{0:F3} Min FPS            ", minFps)
+            Console.WriteLine("{0:F3} Avg FPS            ", (float32 totalFrames / (float32 totalUptime.Ticks / float32 TimeSpan.TicksPerSecond)))
+            Console.WriteLine("{0:F3} Max FPS            ", maxFps)
             Console.WriteLine()
             Console.WriteLine("{0}x{1} Resolution", window.Bounds.Size.Width, window.Bounds.Size.Height)
             Console.WriteLine("========================================")
@@ -161,8 +165,14 @@ type Program public () =
             Console.CursorLeft <- consoleLeft
             Console.CursorTop <- consoleTop
 
+            //need to make this in another thread so that we can listen while rendering
+            //let input = Console.ReadLine()
+            //Console.WriteLine(input)
+
             lastHeaderUpdate <- Unchecked.defaultof<Timestamp>
             fps <- 0
+               
+            
 
     member internal this.RotateObject(polygon:Polygon) : unit =
         let deg2rad:float32 = MathF.PI / 180.0f

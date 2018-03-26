@@ -9,6 +9,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="cube.x">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" />
   </ItemGroup>
 

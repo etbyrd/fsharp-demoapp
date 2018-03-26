@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="XFileParser.fs" />
     <Compile Include="Polygon.fs" />
     <Compile Include="Bitmap.fs" />
     <Compile Include="IDrawingContext.fs" />
