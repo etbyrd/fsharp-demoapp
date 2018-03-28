@@ -20,7 +20,7 @@ type Program public () =
 
     let loadMeshFromFile:bool = true
 
-    let MeshFile:string = "cube.x"
+    let MeshFile:string = "monkey.x"
 
     // Fields
     let dispatchManager:DispatchManager = new DispatchManager()
@@ -41,14 +41,16 @@ type Program public () =
     let mutable totalUptime:TimeSpan = TimeSpan.Zero
     let mutable lastHeaderUpdate:TimeSpan = TimeSpan.Zero
 
-    let mutable rotation:Vector3 = new Vector3(45.0f, 45.0f, 45.0f)
-    let mutable rotationSpeed:Vector3 = new Vector3(15.0000f, 15.0000f, 0.0000f)
-    let mutable scale:Vector3 = new Vector3(100.0f, 100.0f, 1.0f)
+    let mutable rotation:Vector3 = new Vector3(90.0f, 180.0f, 0.0f)
+    let mutable rotationSpeed:Vector3 = new Vector3(0.0000f, 30.0000f, 0.0000f)
+    let mutable scale:Vector3 = new Vector3(100.0f, 100.0f, 0.0f)
     let mutable translation:Vector3 = new Vector3(0.0f, 0.0f, 0.0f)
 
     let mutable isTriangles:bool = false
     let mutable isRotating:bool = true
     let mutable isCulling:bool = true
+
+    let loadedMesh:XFileParser = new XFileParser(MeshFile)
     
     let cube:Lazy<Polygon> = lazy(
         let primitive:Polygon = new Polygon(8, 6, 6, 6)
@@ -94,7 +96,8 @@ type Program public () =
     
     
 
-    let mutable activePrimitive:Polygon = cube.Value
+    //let mutable activePrimitive:Polygon = cube.Value
+    let mutable activePrimitive:Polygon = loadedMesh.ReturnReadPolygon()
 
     // Methods
     member public this.Run() : unit =
@@ -105,12 +108,12 @@ type Program public () =
 
         Console.CursorTop <- ConsoleHeaderLineCount
         Console.WriteLine("test")
-        let loadedMesh:XFileParser = new XFileParser("cube.x")
+        
 
         let mutable exitRequested = false
         dispatcher.ExitRequested.Add(fun unit -> exitRequested <- true)
 
-        //window.Show()
+        window.Show()
         window.Paint.Add(fun eventArgs -> 
             eventArgs.DrawingContext.DrawBitmap(buffers.[displayBufferIndex]))
 

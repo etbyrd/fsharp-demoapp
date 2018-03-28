@@ -4,12 +4,15 @@ open System
 open System.IO
 
 open DemoApplication.Mathematics
+open System
 
 
 //let mutable status:String = "test"
 
 type XFileParser public (filePath:string) =
     
+    let mutable polygon:Polygon = new Polygon(0,0,0,0)
+
     do
         if File.Exists(filePath) then 
             let lines = File.ReadAllLines(filePath) |> Array.toList
@@ -56,7 +59,8 @@ type XFileParser public (filePath:string) =
 
             Console.WriteLine("First Line of mesh is: {0}", formattedLine);
 
-            let testPrimitive:Polygon = new Polygon(verticeCount, verticeGroupCount, normalCount, normalGroupCount)
+            //create the polygon with the correct counts 
+            polygon <- new Polygon(verticeCount, verticeGroupCount, normalCount, normalGroupCount)
 
             //add the vertices
             for i = 1 to verticeCount do
@@ -65,7 +69,7 @@ type XFileParser public (filePath:string) =
                 let split = formattedLine2.Split ';'
  
                 let currentVector = new Vector3(float32 split.[0], float32 split.[1], float32 split.[2])
-                testPrimitive.Vertices.Add(currentVector)
+                polygon.Vertices.Add(currentVector)
             
             //add the normals
             for i = 1 to normalCount do
@@ -74,9 +78,65 @@ type XFileParser public (filePath:string) =
                 let split = formattedLine2.Split ';'
  
                 let currentVector = new Vector3(float32 split.[0], float32 split.[1], float32 split.[2])
-                testPrimitive.Normals.Add(currentVector)
+                polygon.Normals.Add(currentVector)
             
             //now I just need to add the array things, probably will figure out how to do that tomorrow
+
+            for i = 1 to verticeGroupCount do
+                (* I first need to get the number of things in the vert group. For the square, there are 
+                4 because they are squares, but the Icosphere has 3.
+                The format should dictate that the first number (numbers until a semicolon) is the number 
+                items in the group. 
+                *)
+                //Get that number. If we split based on ; first, the first number should be the correct number.
+                let correctLine:string = lines.Item(vertCountLocation + verticeCount + 1 + i)
+                let firstSplit = correctLine.Split ';'
+                //Console.WriteLine("The number of items in this group is: {0}", firstSplit.[0])
+                //Console.WriteLine("# items in firstSplit {0}", firstSplit.Length)
+                let splitOfMiddleSection = firstSplit.[1].Split ','
+                //let mutable arrayToAdd = [||]
+                let arrayToAdd : int array = Array.zeroCreate splitOfMiddleSection.Length
+                for j = 0 to splitOfMiddleSection.Length - 1 do
+                    //Console.WriteLine(splitOfMiddleSection.[j])
+                    arrayToAdd.[j] <- int splitOfMiddleSection.[j]
+                    //Console.WriteLine(arrayToAdd.[j])
+                polygon.VerticeGroups.Add(arrayToAdd)
+
+            for i = 1 to normalGroupCount do
+                (* I first need to get the number of things in the vert group. For the square, there are 
+                4 because they are squares, but the Icosphere has 3.
+                The format should dictate that the first number (numbers until a semicolon) is the number 
+                items in the group. 
+                *)
+                //Get that number. If we split based on ; first, the first number should be the correct number.
+                let correctLine:string = lines.Item(normalCountLocation + normalCount + 1 + i)
+                let firstSplit = correctLine.Split ';'
+                //Console.WriteLine("The number of items in this group is: {0}", firstSplit.[0])
+                //Console.WriteLine("# items in firstSplit {0}", firstSplit.Length)
+                let splitOfMiddleSection = firstSplit.[1].Split ','
+                //let mutable arrayToAdd = [||]
+                let arrayToAdd : int array = Array.zeroCreate splitOfMiddleSection.Length
+                for j = 0 to splitOfMiddleSection.Length - 1 do
+                    //Console.WriteLine(splitOfMiddleSection.[j])
+                    arrayToAdd.[j] <- int splitOfMiddleSection.[j]
+                    //Console.WriteLine(arrayToAdd.[j])
+                polygon.NormalGroups.Add(arrayToAdd)
+
+
+                //let formattedLine:string = lines.Item(vertCountLocation + verticeCount + 1 + i ).Replace(",","")
+                //let formattedLine2:string = formattedLine.Replace(" ","")
+                //let newSplit = formattedLine2.Split ';'
+
+                //Console.WriteLine("First split is {0}", split.[0])
+                //Console.WriteLine("The whole split is {0}", split.ToString())
+
+                //let verticeGroupArray = [|int32 split.[0]; int32 split.[1]; int32 split.[2]; int32 split.[3]|]
+                //testPrimitive.VerticeGroups.Add(verticeGroupArray)
+
+
+            let verticeGroupArray = [|0; 1; 5; 4;|]
+
+            Console.WriteLine(verticeGroupArray)
 
             //testPrimitive.Vertices.Add(line1Vector)
             Console.WriteLine("set a debug point here to check out your polygon")
@@ -103,6 +163,9 @@ type XFileParser public (filePath:string) =
 
     member public this.Info() =
         Console.WriteLine(filePath)
+    
+    member public this.ReturnReadPolygon() : Polygon = 
+        polygon
     
     member public this.ReturnPrimitive() : Polygon = 
         let primitive:Polygon = new Polygon(8, 6, 6, 6)
